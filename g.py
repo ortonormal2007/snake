@@ -1,0 +1,154 @@
+import tkinter as tkr
+import random as rd
+import requests as rq
+
+GREAD = 10
+HEIGHT = 350
+WIDTH = 500
+
+all_right = True
+jratva = 0
+bonus = 0
+score_count = 0
+global_count = 0
+
+timer = 0
+eat = False
+
+
+def inet():
+    name = input("Enter your name: ")
+    rq.get('https://nikitapetrov1997.000webhostapp.com', params={'name': name, 'score':score_count})
+    req_score()
+    
+    
+def req_score():
+    r = [i.split(',') for i in rq.get('https://nikitapetrov1997.000webhostapp.com/hello.txt').text.rstrip().split('\n')]
+    for i in r:
+        i[1] = int(i[1])
+    p = sorted(r, key=lambda x: x[1], reverse=True)[0:10]
+    [print(i+1, "Name", p[i][0], "Score", p[i][1]) for i in range(len(p))]
+    
+
+def eating(object, score_encr):
+    global global_count
+    global score_count
+    global bonus
+    canv.delete(object)
+    canv.delete(score)
+    global_count += 1
+    score_count += score_encr
+    d.new_cusok()
+
+
+def generate():
+    global jratva
+    jratva = canv.create_text(
+        GREAD * rd.randint(1, WIDTH/GREAD), GREAD * rd.randint(1, HEIGHT/GREAD), text='$', font='Arial 12')
+
+
+def generate_bonus():
+    global bonus
+    bonus = canv.create_text(
+        GREAD * rd.randint(1, WIDTH / GREAD), GREAD * rd.randint(1, HEIGHT / GREAD), text='X', font='Arial 15 bold')
+
+
+def play():
+    global all_right
+    global jratva
+    global bonus
+    global score
+    global timer
+    global eat
+
+    if all_right:
+        d.new_cusok()
+        d.move()
+        
+        x, y = canv.coords(d.cusoks[-2].fig)
+        if x > WIDTH - GREAD or x < GREAD:
+            canv.coords(d.cusoks[-1].fig, abs(x - WIDTH), y)
+        if y > HEIGHT - GREAD or y < GREAD:
+            canv.coords(d.cusoks[-1].fig, x, abs(y - HEIGHT))
+        if canv.coords(d.cusoks[-1].fig) in [canv.coords(d.cusoks[i].fig) for i in range(len(d.cusoks) - 1)] or \
+            canv.coords(d.cusoks[-2].fig) in [canv.coords(d.cusoks[i].fig) for i in range(len(d.cusoks) - 2)]:
+            all_right = False
+        if canv.coords(jratva) == canv.coords(d.cusoks[-1].fig) or canv.coords(jratva) == canv.coords(d.cusoks[-2].fig):
+            eat = True
+            eating(jratva, 1)
+            generate()
+            score = canv.create_text(WIDTH - 20, HEIGHT - 10, text=str(score_count))
+        if global_count % 2 == 0 and global_count != 0 and bonus == 0 and eat:
+            timer = 0
+            generate_bonus()
+        elif bonus != 0:
+            timer += 1
+        if timer == 40:
+            canv.delete(bonus)
+            bonus = 0
+            eat = False
+        if canv.coords(bonus) == canv.coords(d.cusoks[-1].fig) or canv.coords(bonus) == canv.coords(d.cusoks[-2].fig):
+            eating(bonus, 5)
+            bonus = 0
+            score = canv.create_text(WIDTH - 20, HEIGHT - 10, text=str(score_count))
+        
+        wind.after(100, play)
+    else:
+        canv.create_text(250, 175, text='Good boy\n' + 'Score: ' + str(score_count), font='Arial 20')
+        wind.after(100, inet)
+        
+        
+        
+class cusok():
+    def __init__(self, x, y):
+        self.fig = canv.create_text(x, y, text='+', font='Arial 20')
+
+
+class dermo():
+    def __init__(self, cusoks):
+        self.cusoks = cusoks
+        self.napr = dict(zip(['Up', 'Down', 'Left', 'Right'], [(0, -1), (0, 1), (-1, 0), (1, 0)]))
+        self.idet = self.napr['Right']
+
+    def move(self):
+        for i in range(len(self.cusoks) - 1):
+            x, y = canv.coords(self.cusoks[i + 1].fig)
+            canv.coords(self.cusoks[i].fig, x, y)
+        x1, y1 = canv.coords(self.cusoks[-1].fig)
+        canv.coords(self.cusoks[-1].fig, x1 + self.idet[0]*GREAD, y1 + self.idet[1]*GREAD)
+
+    def povorot(self, event):
+        tmp = self.napr.get(event.keysym, self.idet)
+        if self.idet != tuple(_ * -1 for _ in tmp):
+            self.idet = tmp
+
+    def new_cusok(self):
+        x, y = canv.coords(self.cusoks[-1].fig)
+        self.cusoks.append(cusok(x + GREAD * self.idet[0], y + GREAD * self.idet[1]))
+  
+  
+plate = tkr.Tk()
+plate.geometry('200x100')
+tkr.Button(text='Show score', command=req_score).grid()
+tkr.Button(text='PLAY THIS MAZAFAKING GAME!!!', command=plate.destroy).grid()  
+plate.mainloop()
+
+
+
+wind = tkr.Tk()
+wind.title('Govno')
+canv = tkr.Canvas(wind, width=WIDTH, height=HEIGHT, bg='#ffff55')
+canv.grid()
+canv.focus_force()
+
+
+init_length = 5
+cuski = [cusok(GREAD * i, GREAD) for i in range(1, init_length + 1)]
+d = dermo(cuski)
+canv.bind("<KeyPress>", d.povorot)
+generate()
+score = canv.create_text(WIDTH - 20, HEIGHT - 10, text='0')
+
+play()
+wind.mainloop()
+
