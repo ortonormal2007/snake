@@ -113,7 +113,6 @@ def play():
             eating(bonus, 5)
             bonus = 0
             score = canv.create_text(WIDTH - 20, HEIGHT - 10, text=str(score_count))
-        
         wind.after(50, play)
     else:
         canv.create_text(250, 175, text='Good boy\n' + 'Score: ' + str(score_count), font='Arial 20')
