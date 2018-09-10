@@ -88,7 +88,6 @@ def play():
         if d.idet != tuple(_ * -1 for _ in d.new_dir):
             d.idet = d.new_dir
         d.move()
-        
         x, y = canv.coords(d.cusoks[-1].fig)
         if x > WIDTH or x < 0:
             canv.coords(d.cusoks[-1].fig, abs(x - WIDTH), y)
