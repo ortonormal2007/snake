@@ -46,8 +46,11 @@ def req_score():
     for i in range(len(p)):
         s += str(i+1) + ". " + p[i][0] + " | " + str(p[i][1]) + "\n"
     #[print(i+1, "Name", p[i][0], "Score", p[i][1]) for i in range(len(p))]
-    mb.showinfo("Leaderboard", s)
-    
+    #mb.showinfo("Leaderboard", s)
+    scr_wind = tkr.Tk()
+    scr_wind.title("Leaderboard")
+    scr_lbl = tkr.Label(scr_wind, text=s, font="Arial 15")
+    scr_lbl.pack(side="top", fill="both", expand=True, padx=40, pady=60)
 
 def eating(object, score_encr):
     global global_count
@@ -82,15 +85,16 @@ def play():
 
     if all_right:
         #d.new_cusok()
+        if d.idet != tuple(_ * -1 for _ in d.new_dir):
+            d.idet = d.new_dir
         d.move()
         
-        x, y = canv.coords(d.cusoks[-2].fig)
-        if x > WIDTH - GREAD or x < GREAD:
+        x, y = canv.coords(d.cusoks[-1].fig)
+        if x > WIDTH or x < 0:
             canv.coords(d.cusoks[-1].fig, abs(x - WIDTH), y)
-        if y > HEIGHT - GREAD or y < GREAD:
+        if y > HEIGHT or y < 0:
             canv.coords(d.cusoks[-1].fig, x, abs(y - HEIGHT))
-        if canv.coords(d.cusoks[-1].fig) in [canv.coords(d.cusoks[i].fig) for i in range(len(d.cusoks) - 1)] or \
-            canv.coords(d.cusoks[-2].fig) in [canv.coords(d.cusoks[i].fig) for i in range(len(d.cusoks) - 2)]:
+        if canv.coords(d.cusoks[-1].fig) in [canv.coords(d.cusoks[i].fig) for i in range(len(d.cusoks) - 1)]:
             all_right = False
         if canv.coords(jratva) == canv.coords(d.cusoks[-1].fig) or canv.coords(jratva) == canv.coords(d.cusoks[-2].fig):
             eat = True
@@ -128,6 +132,7 @@ class dermo():
         self.cusoks = cusoks
         self.napr = dict(zip(['Up', 'Down', 'Left', 'Right'], [(0, -1), (0, 1), (-1, 0), (1, 0)]))
         self.idet = self.napr['Right']
+        self.new_dir = self.idet
 
     def move(self):
         for i in range(len(self.cusoks) - 1):
@@ -137,9 +142,9 @@ class dermo():
         canv.coords(self.cusoks[-1].fig, x1 + self.idet[0]*GREAD, y1 + self.idet[1]*GREAD)
 
     def povorot(self, event):
-        tmp = self.napr.get(event.keysym, self.idet)
-        if self.idet != tuple(_ * -1 for _ in tmp):
-            self.idet = tmp
+        self.new_dir = self.napr.get(event.keysym, self.idet)
+        #if self.idet != tuple(_ * -1 for _ in tmp):
+        #    self.idet = tmp
 
     def new_cusok(self):
         x, y = canv.coords(self.cusoks[-1].fig)
@@ -148,9 +153,12 @@ class dermo():
   
 plate = tkr.Tk()
 plate.geometry('300x100')
-tkr.Button(text='Show score', command=req_score).grid()
-tkr.Button(text='play game', command=plate.destroy).grid()
-tkr.Button(text='quit', command=sys.exit).grid()  
+ss_butt = tkr.Button(text='Show score', command=req_score)
+pg_butt = tkr.Button(text='play game', command=plate.destroy)
+qq_butt = tkr.Button(text='quit', command=sys.exit)  
+ss_butt.pack(expand=False, side="top", fill="both")
+pg_butt.pack(expand=False, side="top", fill="both")
+qq_butt.pack(expand=False, side="top", fill="both")
 plate.mainloop()
 
 
@@ -171,4 +179,3 @@ score = canv.create_text(WIDTH - 20, HEIGHT - 10, text='0')
 
 play()
 wind.mainloop()
-
