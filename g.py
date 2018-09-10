@@ -1,6 +1,8 @@
 import tkinter as tkr
+from tkinter import messagebox as mb
 import random as rd
 import requests as rq
+import sys
 
 GREAD = 10
 HEIGHT = 350
@@ -17,17 +19,36 @@ eat = False
 
 
 def inet():
-    name = input("Enter your name: ")
+    leaders = tkr.Tk()
+    leaders.title("Enter your name")
+    leaders.geometry("500x200")
+    name = str()
+    message_entry = tkr.Entry(leaders, textvariable=name)
+    message_entry.place(relx=.5, rely=.1, anchor="c") 
+    message_button = tkr.Button(leaders, text="I've done", command=lambda: send_data(name, score_count, leaders))
+    message_button.place(relx=.5, rely=.5, anchor="c")
+    leaders.mainloop()
+    #name = input("Enter your name: ")
+    #rq.get('https://nikitapetrov1997.000webhostapp.com', params={'name': name, 'score':score_count})
+    #req_score()
+
+def send_data(name, score_count, leaders):    
+    leaders.destroy()
+    #print("FFFF")
     rq.get('https://nikitapetrov1997.000webhostapp.com', params={'name': name, 'score':score_count})
     req_score()
-    
-    
+        
+
 def req_score():
     r = [i.split(',') for i in rq.get('https://nikitapetrov1997.000webhostapp.com/hello.txt').text.rstrip().split('\n')]
     for i in r:
         i[1] = int(i[1])
     p = sorted(r, key=lambda x: x[1], reverse=True)[0:10]
-    [print(i+1, "Name", p[i][0], "Score", p[i][1]) for i in range(len(p))]
+    s = ""
+    for i in range(len(p)):
+        s += str(i+1) + ". " + p[i][0] + " | " + str(p[i][1]) + "\n"
+    #[print(i+1, "Name", p[i][0], "Score", p[i][1]) for i in range(len(p))]
+    mb.showinfo("Leaderboard", s)
     
 
 def eating(object, score_encr):
@@ -62,7 +83,7 @@ def play():
     global eat
 
     if all_right:
-        d.new_cusok()
+        #d.new_cusok()
         d.move()
         
         x, y = canv.coords(d.cusoks[-2].fig)
@@ -92,7 +113,7 @@ def play():
             bonus = 0
             score = canv.create_text(WIDTH - 20, HEIGHT - 10, text=str(score_count))
         
-        wind.after(100, play)
+        wind.after(50, play)
     else:
         canv.create_text(250, 175, text='Good boy\n' + 'Score: ' + str(score_count), font='Arial 20')
         wind.after(100, inet)
@@ -128,9 +149,10 @@ class dermo():
   
   
 plate = tkr.Tk()
-plate.geometry('200x100')
+plate.geometry('300x100')
 tkr.Button(text='Show score', command=req_score).grid()
-tkr.Button(text='PLAY THIS MAZAFAKING GAME!!!', command=plate.destroy).grid()  
+tkr.Button(text='play game', command=plate.destroy).grid()
+tkr.Button(text='quit', command=sys.exit).grid()  
 plate.mainloop()
 
 
