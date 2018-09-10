@@ -85,8 +85,8 @@ def play():
 
     if all_right:
         #d.new_cusok()
-        if d.idet != tuple(_ * -1 for _ in d.new_dir):
-            d.idet = d.new_dir
+        if d.idet != tuple(_ * -1 for _ in d.new_dir): #Allows not to lay the snake head on the tail
+            d.idet = d.new_dir                         #in case of fast key switching
         d.move()
         x, y = canv.coords(d.cusoks[-1].fig)
         if x > WIDTH or x < 0:
