@@ -19,24 +19,22 @@ eat = False
 
 
 def inet():
-    leaders = tkr.Tk()
-    leaders.title("Enter your name")
-    leaders.geometry("500x200")
-    name = str()
-    message_entry = tkr.Entry(leaders, textvariable=name)
-    message_entry.place(relx=.5, rely=.1, anchor="c") 
-    message_button = tkr.Button(leaders, text="I've done", command=lambda: send_data(name, score_count, leaders))
+    def send_data():
+        wind.destroy()
+        rq.get('https://nikitapetrov1997.000webhostapp.com', params={'name': name.get(), 'score':score_count})
+        req_score()
+     
+    name = tkr.StringVar()
+     
+    message_entry = tkr.Entry(textvariable=name)
+    message_entry.place(relx=.5, rely=.1, anchor="c")
+     
+    message_button = tkr.Button(text="Click Me", command=send_data)
     message_button.place(relx=.5, rely=.5, anchor="c")
-    leaders.mainloop()
+    
     #name = input("Enter your name: ")
     #rq.get('https://nikitapetrov1997.000webhostapp.com', params={'name': name, 'score':score_count})
     #req_score()
-
-def send_data(name, score_count, leaders):    
-    leaders.destroy()
-    #print("FFFF")
-    rq.get('https://nikitapetrov1997.000webhostapp.com', params={'name': name, 'score':score_count})
-    req_score()
         
 
 def req_score():
