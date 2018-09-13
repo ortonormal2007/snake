@@ -80,7 +80,7 @@ def generate_bonus():
 def show_score(sc):
     global score
     score = panel.create_text(5, (HEIGHT)/30, text='Score: ' + str(sc), font='Arial 15', anchor='w')
- 
+    
 
 def play():
     global all_right
