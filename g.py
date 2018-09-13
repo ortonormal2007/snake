@@ -14,6 +14,7 @@ bonus = 0
 score_count = 0
 global_count = 0
 
+score = 0
 timer = 0
 eat = False
 
@@ -57,7 +58,7 @@ def eating(object, score_encr):
     global score_count
     global bonus
     canv.delete(object)
-    canv.delete(score)
+    panel.delete(score)
     global_count += 1
     score_count += score_encr
     d.new_cusok()
@@ -75,6 +76,12 @@ def generate_bonus():
         GREAD * rd.randint(1, WIDTH / GREAD), GREAD * rd.randint(1, HEIGHT / GREAD), text='X', font='Arial 15 bold')
 
 
+#New SCORE widow        
+def show_score(sc):
+    global score
+    score = panel.create_text(5, (HEIGHT)/30, text='Score: ' + str(sc), font='Arial 15', anchor='w')
+ 
+
 def play():
     global all_right
     global jratva
@@ -84,22 +91,23 @@ def play():
     global eat
 
     if all_right:
-        #d.new_cusok()
         if d.idet != tuple(_ * -1 for _ in d.new_dir): #Allows not to lay the snake head on the tail
             d.idet = d.new_dir                         #in case of fast key switching
         d.move()
         x, y = canv.coords(d.cusoks[-1].fig)
+        
         if x > WIDTH or x < 0:
-            canv.coords(d.cusoks[-1].fig, abs(x - WIDTH), y)
-        if y > HEIGHT or y < 0:
-            canv.coords(d.cusoks[-1].fig, x, abs(y - HEIGHT))
+            canv.coords(d.cusoks[-1].fig, abs(x - WIDTH) - GREAD, y) #Now segments are teleported in right place
+        if y > HEIGHT or y < 0:                                      #without any offset
+            canv.coords(d.cusoks[-1].fig, x, abs(y - HEIGHT) - GREAD)
+            
         if canv.coords(d.cusoks[-1].fig) in [canv.coords(d.cusoks[i].fig) for i in range(len(d.cusoks) - 1)]:
             all_right = False
         if canv.coords(jratva) == canv.coords(d.cusoks[-1].fig) or canv.coords(jratva) == canv.coords(d.cusoks[-2].fig):
             eat = True
-            eating(jratva, 1)
+            eating(jratva, 5)
             generate()
-            score = canv.create_text(WIDTH - 20, HEIGHT - 10, text=str(score_count))
+            show_score(score_count)
         if global_count % 2 == 0 and global_count != 0 and bonus == 0 and eat:
             timer = 0
             generate_bonus()
@@ -112,7 +120,7 @@ def play():
         if canv.coords(bonus) == canv.coords(d.cusoks[-1].fig) or canv.coords(bonus) == canv.coords(d.cusoks[-2].fig):
             eating(bonus, 5)
             bonus = 0
-            score = canv.create_text(WIDTH - 20, HEIGHT - 10, text=str(score_count))
+            show_score(score_count)
         wind.after(50, play)
     else:
         canv.create_text(250, 175, text='Good boy\n' + 'Score: ' + str(score_count), font='Arial 20')
@@ -157,8 +165,8 @@ qq_butt = tkr.Button(text='quit', command=sys.exit)
 ss_butt.pack(expand=False, side="top", fill="both")
 pg_butt.pack(expand=False, side="top", fill="both")
 qq_butt.pack(expand=False, side="top", fill="both")
+plate.protocol("WM_DELETE_WINDOW", sys.exit)
 plate.mainloop()
-
 
 
 wind = tkr.Tk()
@@ -166,14 +174,17 @@ wind.title('Govno')
 canv = tkr.Canvas(wind, width=WIDTH, height=HEIGHT, bg='#ffff55')
 canv.grid()
 canv.focus_force()
-
+panel = tkr.Canvas(wind, width=WIDTH, height=(HEIGHT/15), bg='#aaaaaa')
+panel.grid()
 
 init_length = 5
 cuski = [cusok(GREAD * i, GREAD) for i in range(1, init_length + 1)]
 d = dermo(cuski)
+
 canv.bind("<KeyPress>", d.povorot)
 generate()
-score = canv.create_text(WIDTH - 20, HEIGHT - 10, text='0')
+
+show_score(0)
 
 play()
 wind.mainloop()
