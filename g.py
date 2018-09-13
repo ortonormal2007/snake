@@ -105,7 +105,7 @@ def play():
             all_right = False
         if canv.coords(jratva) == canv.coords(d.cusoks[-1].fig) or canv.coords(jratva) == canv.coords(d.cusoks[-2].fig):
             eat = True
-            eating(jratva, 5)
+            eating(jratva, 1)
             generate()
             show_score(score_count)
         if global_count % 2 == 0 and global_count != 0 and bonus == 0 and eat:
