@@ -22,7 +22,7 @@ eat = False
 def inet():
     def send_data():
         wind.destroy()
-        rq.get('https://nikitapetrov1997.000webhostapp.com', params={'name': name.get(), 'score':score_count})
+        rq.get('https://snakeyaroslav.000webhostapp.com', params={'name': name.get(), 'score':score_count})
         req_score()
      
     name = tkr.StringVar()
@@ -34,12 +34,13 @@ def inet():
     message_button.place(relx=.5, rely=.5, anchor="c")
     
     #name = input("Enter your name: ")
-    #rq.get('https://nikitapetrov1997.000webhostapp.com', params={'name': name, 'score':score_count})
+    #rq.get('https://snakeyaroslav.000webhostapp.com', params={'name': name, 'score':score_count})
     #req_score()
         
 
 def req_score():
-    r = [i.split(',') for i in rq.get('https://nikitapetrov1997.000webhostapp.com/hello.txt').text.rstrip().split('\n')]
+    r = [i.split(',') for i in rq.get('https://snakeyaroslav.000webhostapp.com/hello.txt').text.rstrip().split('\n')]
+    # print(r)
     for i in r:
         i[1] = int(i[1])
     p = sorted(r, key=lambda x: x[1], reverse=True)[0:10]
