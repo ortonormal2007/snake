@@ -22,37 +22,46 @@ eat = False
 def inet():
     def send_data():
         wind.destroy()
-        rq.get('https://snakeyaroslav.000webhostapp.com', params={'name': name.get(), 'score':score_count})
+        rq.get(
+            "https://snakeyaroslav.000webhostapp.com",
+            params={"name": name.get(), "score": score_count},
+        )
         req_score()
-     
+
     name = tkr.StringVar()
-     
+
     message_entry = tkr.Entry(textvariable=name)
-    message_entry.place(relx=.5, rely=.1, anchor="c")
-     
+    message_entry.place(relx=0.5, rely=0.1, anchor="c")
+
     message_button = tkr.Button(text="Click Me", command=send_data)
-    message_button.place(relx=.5, rely=.5, anchor="c")
-    
-    #name = input("Enter your name: ")
-    #rq.get('https://snakeyaroslav.000webhostapp.com', params={'name': name, 'score':score_count})
-    #req_score()
-        
+    message_button.place(relx=0.5, rely=0.5, anchor="c")
+
+    # name = input("Enter your name: ")
+    # rq.get('https://snakeyaroslav.000webhostapp.com', params={'name': name, 'score':score_count})
+    # req_score()
+
 
 def req_score():
-    r = [i.split(',') for i in rq.get('https://snakeyaroslav.000webhostapp.com/hello.txt').text.rstrip().split('\n')]
+    r = [
+        i.split(",")
+        for i in rq.get("https://snakeyaroslav.000webhostapp.com/hello.txt")
+        .text.rstrip()
+        .split("\n")
+    ]
     # print(r)
     for i in r:
         i[1] = int(i[1])
     p = sorted(r, key=lambda x: x[1], reverse=True)[0:10]
     s = ""
     for i in range(len(p)):
-        s += str(i+1) + ". " + p[i][0] + " | " + str(p[i][1]) + "\n"
-    #[print(i+1, "Name", p[i][0], "Score", p[i][1]) for i in range(len(p))]
-    #mb.showinfo("Leaderboard", s)
+        s += str(i + 1) + ". " + p[i][0] + " | " + str(p[i][1]) + "\n"
+    # [print(i+1, "Name", p[i][0], "Score", p[i][1]) for i in range(len(p))]
+    # mb.showinfo("Leaderboard", s)
     scr_wind = tkr.Tk()
     scr_wind.title("Leaderboard")
     scr_lbl = tkr.Label(scr_wind, text=s, font="Arial 15")
     scr_lbl.pack(side="top", fill="both", expand=True, padx=40, pady=60)
+
 
 def eating(object, score_encr):
     global global_count
@@ -68,20 +77,30 @@ def eating(object, score_encr):
 def generate():
     global jratva
     jratva = canv.create_text(
-        GREAD * rd.randint(1, WIDTH/GREAD), GREAD * rd.randint(1, HEIGHT/GREAD), text='$', font='Arial 12')
+        GREAD * rd.randint(1, WIDTH / GREAD),
+        GREAD * rd.randint(1, HEIGHT / GREAD),
+        text="$",
+        font="Arial 12",
+    )
 
 
 def generate_bonus():
     global bonus
     bonus = canv.create_text(
-        GREAD * rd.randint(1, WIDTH / GREAD), GREAD * rd.randint(1, HEIGHT / GREAD), text='X', font='Arial 15 bold')
+        GREAD * rd.randint(1, WIDTH / GREAD),
+        GREAD * rd.randint(1, HEIGHT / GREAD),
+        text="X",
+        font="Arial 15 bold",
+    )
 
 
-#New SCORE widow        
+# New SCORE widow
 def show_score(sc):
     global score
-    score = panel.create_text(5, (HEIGHT)/30, text='Score: ' + str(sc), font='Arial 15', anchor='w')
-    
+    score = panel.create_text(
+        5, (HEIGHT) / 30, text="Score: " + str(sc), font="Arial 15", anchor="w"
+    )
+
 
 def play():
     global all_right
@@ -92,19 +111,27 @@ def play():
     global eat
 
     if all_right:
-        if d.idet != tuple(_ * -1 for _ in d.new_dir): #Allows not to lay the snake head on the tail
-            d.idet = d.new_dir                         #in case of fast key switching
+        if d.idet != tuple(
+            _ * -1 for _ in d.new_dir
+        ):  # Allows not to lay the snake head on the tail
+            d.idet = d.new_dir  # in case of fast key switching
         d.move()
         x, y = canv.coords(d.cusoks[-1].fig)
-        
+
         if x > WIDTH or x < 0:
-            canv.coords(d.cusoks[-1].fig, abs(x - WIDTH) - GREAD, y) #Now segments are teleported in right place
-        if y > HEIGHT or y < 0:                                      #without any offset
+            canv.coords(
+                d.cusoks[-1].fig, abs(x - WIDTH) - GREAD, y
+            )  # Now segments are teleported in right place
+        if y > HEIGHT or y < 0:  # without any offset
             canv.coords(d.cusoks[-1].fig, x, abs(y - HEIGHT) - GREAD)
-            
-        if canv.coords(d.cusoks[-1].fig) in [canv.coords(d.cusoks[i].fig) for i in range(len(d.cusoks) - 1)]:
+
+        if canv.coords(d.cusoks[-1].fig) in [
+            canv.coords(d.cusoks[i].fig) for i in range(len(d.cusoks) - 1)
+        ]:
             all_right = False
-        if canv.coords(jratva) == canv.coords(d.cusoks[-1].fig) or canv.coords(jratva) == canv.coords(d.cusoks[-2].fig):
+        if canv.coords(jratva) == canv.coords(d.cusoks[-1].fig) or canv.coords(
+            jratva
+        ) == canv.coords(d.cusoks[-2].fig):
             eat = True
             eating(jratva, 1)
             generate()
@@ -118,27 +145,32 @@ def play():
             canv.delete(bonus)
             bonus = 0
             eat = False
-        if canv.coords(bonus) == canv.coords(d.cusoks[-1].fig) or canv.coords(bonus) == canv.coords(d.cusoks[-2].fig):
+        if canv.coords(bonus) == canv.coords(d.cusoks[-1].fig) or canv.coords(
+            bonus
+        ) == canv.coords(d.cusoks[-2].fig):
             eating(bonus, 5)
             bonus = 0
             show_score(score_count)
         wind.after(50, play)
     else:
-        canv.create_text(250, 175, text='Good boy\n' + 'Score: ' + str(score_count), font='Arial 20')
+        canv.create_text(
+            250, 175, text="Good boy\n" + "Score: " + str(score_count), font="Arial 20"
+        )
         wind.after(100, inet)
-        
-        
-        
-class cusok():
+
+
+class cusok:
     def __init__(self, x, y):
-        self.fig = canv.create_text(x, y, text='+', font='Arial 20')
+        self.fig = canv.create_text(x, y, text="+", font="Arial 20")
 
 
-class dermo():
+class dermo:
     def __init__(self, cusoks):
         self.cusoks = cusoks
-        self.napr = dict(zip(['Up', 'Down', 'Left', 'Right'], [(0, -1), (0, 1), (-1, 0), (1, 0)]))
-        self.idet = self.napr['Right']
+        self.napr = dict(
+            zip(["Up", "Down", "Left", "Right"], [(0, -1), (0, 1), (-1, 0), (1, 0)])
+        )
+        self.idet = self.napr["Right"]
         self.new_dir = self.idet
 
     def move(self):
@@ -146,23 +178,25 @@ class dermo():
             x, y = canv.coords(self.cusoks[i + 1].fig)
             canv.coords(self.cusoks[i].fig, x, y)
         x1, y1 = canv.coords(self.cusoks[-1].fig)
-        canv.coords(self.cusoks[-1].fig, x1 + self.idet[0]*GREAD, y1 + self.idet[1]*GREAD)
+        canv.coords(
+            self.cusoks[-1].fig, x1 + self.idet[0] * GREAD, y1 + self.idet[1] * GREAD
+        )
 
     def povorot(self, event):
         self.new_dir = self.napr.get(event.keysym, self.idet)
-        #if self.idet != tuple(_ * -1 for _ in tmp):
+        # if self.idet != tuple(_ * -1 for _ in tmp):
         #    self.idet = tmp
 
     def new_cusok(self):
         x, y = canv.coords(self.cusoks[-1].fig)
         self.cusoks.append(cusok(x + GREAD * self.idet[0], y + GREAD * self.idet[1]))
-  
-  
+
+
 plate = tkr.Tk()
-plate.geometry('300x100')
-ss_butt = tkr.Button(text='Show score', command=req_score)
-pg_butt = tkr.Button(text='play game', command=plate.destroy)
-qq_butt = tkr.Button(text='quit', command=sys.exit)  
+plate.geometry("300x100")
+ss_butt = tkr.Button(text="Show score", command=req_score)
+pg_butt = tkr.Button(text="play game", command=plate.destroy)
+qq_butt = tkr.Button(text="quit", command=sys.exit)
 ss_butt.pack(expand=False, side="top", fill="both")
 pg_butt.pack(expand=False, side="top", fill="both")
 qq_butt.pack(expand=False, side="top", fill="both")
@@ -171,11 +205,11 @@ plate.mainloop()
 
 
 wind = tkr.Tk()
-wind.title('Govno')
-canv = tkr.Canvas(wind, width=WIDTH, height=HEIGHT, bg='#ffff55')
+wind.title("Govno")
+canv = tkr.Canvas(wind, width=WIDTH, height=HEIGHT, bg="#ffff55")
 canv.grid()
 canv.focus_force()
-panel = tkr.Canvas(wind, width=WIDTH, height=(HEIGHT/15), bg='#aaaaaa')
+panel = tkr.Canvas(wind, width=WIDTH, height=(HEIGHT / 15), bg="#aaaaaa")
 panel.grid()
 
 init_length = 5
