@@ -1,8 +1,8 @@
 import tkinter as tkr
-from tkinter import messagebox as mb
 import random as rd
-import requests as rq
 import sys
+from configparser import ConfigParser
+import psycopg2
 
 GREAD = 10
 HEIGHT = 350
@@ -19,13 +19,70 @@ timer = 0
 eat = False
 
 
+class ResultsDB:
+    def __init__(self, filename="config.ini", section="postgresql"):
+        parser = ConfigParser()
+        parser.read(filename)
+        config = {}
+        if parser.has_section(section):
+            params = parser.items(section)
+            for param in params:
+                config[param[0]] = param[1]
+        else:
+            raise ValueError(f"Section {section} not found in the {filename} file")
+
+        self.conn = psycopg2.connect(**config)
+        self.__initdb()
+
+    def __initdb(self):
+        with self.conn.cursor() as cur:
+            cur.execute("CREATE SCHEMA IF NOT EXISTS myschema;")
+            cur.execute(
+                "CREATE TABLE IF NOT EXISTS myschema.results (idx serial PRIMARY KEY, score integer, name VARCHAR(40) not null);"
+            )
+        return
+
+    def send_result(self, name: str, sendscore: int) -> None:
+        with self.conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO myschema.results (name, score) VALUES (%s, %s)",
+                (name, sendscore),
+            )
+            cur.execute(
+                """
+                DELETE FROM myschema.results
+                WHERE ctid NOT IN (
+                    SELECT ctid
+                    FROM myschema.results
+                    ORDER BY score DESC
+                    LIMIT 50
+                )
+                """
+            )
+        self.conn.commit()
+        return
+
+    def get_results(self, top: int = 10) -> list[tuple[str, int]]:
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """SELECT name, score FROM myschema.results ORDER BY score DESC LIMIT %s
+                """,
+                (top,),
+            )
+            result = cur.fetchall()
+        return result
+
+    def __del__(self):
+        self.conn.close()
+
+
+rdb = ResultsDB("config.ini")
+
+
 def inet():
     def send_data():
         wind.destroy()
-        rq.get(
-            "https://snakeyaroslav.000webhostapp.com",
-            params={"name": name.get(), "score": score_count},
-        )
+        rdb.send_result(name.get(), score_count)
         req_score()
 
     name = tkr.StringVar()
@@ -36,27 +93,12 @@ def inet():
     message_button = tkr.Button(text="Click Me", command=send_data)
     message_button.place(relx=0.5, rely=0.5, anchor="c")
 
-    # name = input("Enter your name: ")
-    # rq.get('https://snakeyaroslav.000webhostapp.com', params={'name': name, 'score':score_count})
-    # req_score()
-
 
 def req_score():
-    r = [
-        i.split(",")
-        for i in rq.get("https://snakeyaroslav.000webhostapp.com/hello.txt")
-        .text.rstrip()
-        .split("\n")
-    ]
-    # print(r)
-    for i in r:
-        i[1] = int(i[1])
-    p = sorted(r, key=lambda x: x[1], reverse=True)[0:10]
+    results = rdb.get_results()
     s = ""
-    for i in range(len(p)):
-        s += str(i + 1) + ". " + p[i][0] + " | " + str(p[i][1]) + "\n"
-    # [print(i+1, "Name", p[i][0], "Score", p[i][1]) for i in range(len(p))]
-    # mb.showinfo("Leaderboard", s)
+    for name, res_score in results:
+        s += f"{name} | {res_score}\n"
     scr_wind = tkr.Tk()
     scr_wind.title("Leaderboard")
     scr_lbl = tkr.Label(scr_wind, text=s, font="Arial 15")
@@ -205,7 +247,7 @@ plate.mainloop()
 
 
 wind = tkr.Tk()
-wind.title("Govno")
+wind.title("Snake game for friends")
 canv = tkr.Canvas(wind, width=WIDTH, height=HEIGHT, bg="#ffff55")
 canv.grid()
 canv.focus_force()
