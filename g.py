@@ -205,6 +205,12 @@ class cusok:
     def __init__(self, x, y):
         self.fig = canv.create_text(x, y, text="+", font="Arial 20")
 
+    def set_head(self):
+        canv.itemconfig(self.fig, text="O")
+
+    def set_body(self):
+        canv.itemconfig(self.fig, text="+")
+
 
 class dermo:
     def __init__(self, cusoks):
@@ -231,7 +237,9 @@ class dermo:
 
     def new_cusok(self):
         x, y = canv.coords(self.cusoks[-1].fig)
+        self.cusoks[-1].set_body()
         self.cusoks.append(cusok(x + GREAD * self.idet[0], y + GREAD * self.idet[1]))
+        self.cusoks[-1].set_head()
 
 
 plate = tkr.Tk()
@@ -255,7 +263,8 @@ panel = tkr.Canvas(wind, width=WIDTH, height=(HEIGHT / 15), bg="#aaaaaa")
 panel.grid()
 
 init_length = 5
-cuski = [cusok(GREAD * i, GREAD) for i in range(1, init_length + 1)]
+cuski = [cusok(GREAD * (i + 1), GREAD) for i in range(0, init_length)]
+cuski[-1].set_head()
 d = dermo(cuski)
 
 canv.bind("<KeyPress>", d.povorot)
